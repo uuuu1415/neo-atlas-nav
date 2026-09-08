@@ -1,3 +1,18 @@
-# neo-atlas-nav
+# Neo Atlas Nav
 
-Repository initialized from the local `neo-atlas-nav` workspace.
+个人网站导航项目。目标为 React 界面、玻璃拟态与丰富交互动效、网页管理、SQLite 数据、JSON 设置，以及 Linux 原生一键部署和内置更新。
+
+**当前状态：需求与恢复记录已建立，应用尚未实现，没有可用的安装包或部署结果。**
+
+## 项目记录
+
+- [需求基线](docs/PROJECT_SPEC.md)：用户已确认的目标、约束与待验证条件。
+- [实施计划](docs/IMPLEMENTATION_PLAN.md)：分阶段工作与验收标准。
+- [恢复检查点](docs/STATUS.md)：真实进度、证据及下一步。
+- [开发与恢复规则](AGENTS.md)：编码助手必须遵循的工作流程。
+
+发生中断或接手任务时，先阅读以上文件，再核对 Git 和实际代码。不要把计划中的能力当成已完成的功能。
+
+## 许可证
+
+项目采用 [MIT](LICENSE)。使用第三方组件时保留对应版权和许可证声明。
