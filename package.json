@@ -1,0 +1,41 @@
+{
+  "name": "neo-atlas-nav",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "drizzle-orm": "0.45.2",
+    "better-sqlite3": "13.0.3",
+    "motion": "13.2.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.3.4",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/postcss": "4.3.3",
+    "vitest": "5.0.0",
+    "prettier": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/better-sqlite3": "latest"
+  }
+}

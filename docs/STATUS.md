@@ -53,3 +53,20 @@
 ## 简短历史
 
 - 2026-09-08 C0：重新核实空应用仓库，同步已有 README 历史，按明确授权公开；建立可恢复文档，暂存内容格式检查和 5 个 README 链接检查通过。
+
+## C1 开始实施
+2026-09-08：已核对远程与干净工作树。开始安装官方 registry 核实的 Next 16.3.4、React 19.2.8、TypeScript 7.0.2、Drizzle 0.45.2、better-sqlite3 13.0.3。Node 24.13.0。进行中：依赖安装；恢复先检查 package-lock.json 和安装进程，不重新初始化。
+
+## C1 实际验证补充
+
+2026-09-08：依赖安装因官方 registry 元数据解析过慢，按规则切换到 `https://registry.npmmirror.com` 后成功。固定 TypeScript 6.0.3 与 ESLint 9.39.4，原因是 TypeScript 7.0.2 和 eslint-config-next 内置 typescript-eslint、ESLint 10 与其插件链存在真实兼容错误。
+
+- `npm.cmd run typecheck`：通过。
+- `npm.cmd test -- --run`：1 个测试文件，4 个测试通过。
+- `npm.cmd run lint`：通过。
+- `npm.cmd run build`：通过，识别 `/`、`/api/categories`、`/api/health`、`/api/settings`、`/api/websites`。
+- `git diff --check`：通过。
+
+已实现未验证：网站/分类/设置接口、首页搜索/置顶/回收站基础操作、玻璃拟态响应式界面和 Motion 基础动效。待实施：Metascraper、图标获取、书签导入导出、拖拽、批量操作、巡检、浏览器验收、性能测量、Linux 安装和 GitHub 更新回退。
+
+下一步先检查当前 Git 状态并启动服务做 `/api/health` 实际请求；恢复时不要把构建通过解释为浏览器、Linux 或发布验证通过。
