@@ -70,3 +70,13 @@
 已实现未验证：网站/分类/设置接口、首页搜索/置顶/回收站基础操作、玻璃拟态响应式界面和 Motion 基础动效。待实施：Metascraper、图标获取、书签导入导出、拖拽、批量操作、巡检、浏览器验收、性能测量、Linux 安装和 GitHub 更新回退。
 
 下一步先检查当前 Git 状态并启动服务做 `/api/health` 实际请求；恢复时不要把构建通过解释为浏览器、Linux 或发布验证通过。
+
+## C2 元数据预览
+
+2026-09-08：阶段 3 的第一项已实现未验证。新增 `POST /api/metadata`，对 HTTP/HTTPS URL 进行 10 秒、2 MB 上限的 HTML 请求，提取 title、description、Open Graph 标题/描述和 icon/link 候选，返回实际重定向后的 sourceUrl；非 HTML、缺字段和失败均明确返回警告，不能阻止手动保存。网站编辑表单已接入“获取信息”预览，默认用结果覆盖本次表单草稿，不自动写入数据库。
+
+Metascraper 最新 5.56.2 及回退到 5.55.2 的依赖会解析到要求 Node `^24.15.0` 的 jsdom/re2，而当前 Node 24.13.0 不满足；安装已停止，未写入 lockfile。当前使用小范围、可审计的 HTML meta 提取器，待 Node 运行时升级并重新核对后再评估替换。
+
+验证：`npm.cmd run typecheck`、`npm.cmd test -- --run`（4 passed）、`npm.cmd run lint`、`npm.cmd run build`（新增 `/api/metadata`）、`git diff --check` 均通过。浏览器实际抓取、远程网站兼容性和图标显示仍未验证。
+
+下一步：提交并推送当前改动；继续书签导入导出、拖拽排序、批量操作和巡检。恢复时先核对 package-lock、metadata 路由和表单工作树，不重复安装不兼容 Metascraper。
