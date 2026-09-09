@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import * as schema from "./schema";
+import { recoverRestore } from "./restore-journal";
 
 export function openDatabase(directory: string) {
   mkdirSync(directory, { recursive: true });
@@ -10,7 +11,7 @@ export function openDatabase(directory: string) {
   sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");
   const version = Number(sqlite.pragma("user_version", { simple: true }));
-  if (version > 1) {
+  if (version > 2) {
     sqlite.close();
     throw new Error("数据库版本高于当前程序支持的版本");
   }
@@ -22,12 +23,23 @@ export function openDatabase(directory: string) {
         PRAGMA user_version = 1;`);
     })();
   }
+  if (version < 2) {
+    sqlite.transaction(() => {
+      sqlite.exec(
+        "CREATE TABLE restore_commits (id TEXT PRIMARY KEY); PRAGMA user_version = 2;",
+      );
+    })();
+  }
+  recoverRestore(directory, sqlite);
   return { sqlite, db: drizzle(sqlite, { schema }) };
 }
 let connection: ReturnType<typeof openDatabase> | undefined;
-export function getDatabase() {
+export function getConnection() {
   connection ??= openDatabase(
     process.env.ATLAS_DATA_DIR ?? path.join(process.cwd(), "data"),
   );
-  return connection.db;
+  return connection;
+}
+export function getDatabase() {
+  return getConnection().db;
 }

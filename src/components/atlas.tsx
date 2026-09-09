@@ -8,6 +8,7 @@ import { WebsiteEditor } from "./website-editor";
 import { SettingsPanel } from "./settings-panel";
 import { BatchToolbar } from "./batch-toolbar";
 import { CategoryManager } from "./category-manager";
+import { ImportPanel } from "./import-panel";
 import type { BatchCommand } from "@/lib/catalog-commands";
 
 type Props = {
@@ -304,6 +305,23 @@ export function Atlas({
           <CategoryManager
             categories={categories}
             onChanged={refreshCategories}
+          />
+          <ImportPanel
+            onChanged={async () => {
+              const [nextWebsites, nextCategories, settingsResponse] =
+                await Promise.all([
+                  requestJson<Website[]>("/api/websites"),
+                  requestJson<Category[]>("/api/categories"),
+                  requestJson<{ settings: Settings }>("/api/settings"),
+                ]);
+              setWebsites(nextWebsites);
+              setCategories(nextCategories);
+              setSettings(settingsResponse.settings);
+              setCategory("all");
+              setSelected([]);
+              setEditor(null);
+              setShowSettings(false);
+            }}
           />
           <div className="collection-heading">
             <div>

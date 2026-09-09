@@ -935,3 +935,81 @@ label input[type="color"] {
 .batch-toolbar .danger {
   color: #b34861;
 }
+.transfer-panel {
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.transfer-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.transfer-panel summary span {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 12px;
+}
+.transfer-panel p {
+  line-height: 1.8;
+}
+.transfer-panel > a {
+  display: inline-block;
+}
+.transfer-fields {
+  border: 0;
+  padding: 18px 0;
+  margin: 16px 0 0;
+  min-width: 0;
+}
+.transfer-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.transfer-stats span {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.transfer-stats strong {
+  color: var(--accent);
+  margin-left: 8px;
+}
+.transfer-table {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+.transfer-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.transfer-table th,
+.transfer-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  min-width: 90px;
+}
+.transfer-table td:first-child {
+  min-width: 180px;
+  max-width: 400px;
+}
+.transfer-table small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.transfer-confirm {
+  flex-direction: row;
+  align-items: center;
+  color: var(--text);
+}
+.transfer-confirm input {
+  width: auto;
+}

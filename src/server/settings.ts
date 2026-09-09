@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile, rename, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { defaultSettings, settingsSchema, type Settings } from "../lib/schemas";
+import { recoverRestore } from "./restore-journal";
 
 export class SettingsConflictError extends Error {}
 export class SettingsStore {
@@ -29,6 +30,7 @@ export class SettingsStore {
     await rename(temporary, this.file);
   }
   private async load(): Promise<{ settings: Settings; warning?: string }> {
+    recoverRestore(this.directory);
     try {
       return { settings: await this.readFile(this.file) };
     } catch (error) {
@@ -52,6 +54,15 @@ export class SettingsStore {
   }
   read() {
     return this.serialize(() => this.load());
+  }
+  /** Keep restore's synchronous DB/file transaction inside the settings queue. */
+  withSnapshot<T>(
+    operation: (settings: Settings, directory: string) => T,
+  ): Promise<T> {
+    return this.serialize(async () => {
+      const { settings } = await this.load();
+      return operation(settings, this.directory);
+    });
   }
   save(input: unknown) {
     return this.serialize(async () => {
