@@ -3,19 +3,20 @@ import { randomUUID } from "node:crypto";
 import { getDatabase } from "./database";
 import { categories, websites } from "./schema";
 import { websiteInputSchema } from "../lib/schemas";
+import { applyBatch } from "./catalog-management";
 
 export function listWebsites() {
   return getDatabase()
     .select()
     .from(websites)
-    .orderBy(asc(websites.position))
+    .orderBy(asc(websites.position), asc(websites.id))
     .all();
 }
 export function listCategories() {
   return getDatabase()
     .select()
     .from(categories)
-    .orderBy(asc(categories.position))
+    .orderBy(asc(categories.position), asc(categories.id))
     .all();
 }
 export function saveWebsite(input: unknown, id?: string) {
@@ -48,7 +49,7 @@ export function trashWebsite(id: string, restore: boolean) {
     .get();
 }
 export function deleteWebsite(id: string) {
-  getDatabase().delete(websites).where(eq(websites.id, id)).run();
+  applyBatch(getDatabase(), { action: "delete", ids: [id] });
 }
 export function addCategory(name: string) {
   return getDatabase()

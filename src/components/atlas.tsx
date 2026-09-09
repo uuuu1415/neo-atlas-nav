@@ -6,6 +6,9 @@ import type { Website, Category } from "@/server/schema";
 import type { Settings } from "@/lib/schemas";
 import { WebsiteEditor } from "./website-editor";
 import { SettingsPanel } from "./settings-panel";
+import { BatchToolbar } from "./batch-toolbar";
+import { CategoryManager } from "./category-manager";
+import type { BatchCommand } from "@/lib/catalog-commands";
 
 type Props = {
   initialWebsites: Website[];
@@ -42,6 +45,9 @@ export function Atlas({
   const [notice, setNotice] = useState(warning ?? "");
   const [categoryName, setCategoryName] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [managing, setManaging] = useState(false);
+  const [batchBusy, setBatchBusy] = useState(false);
   const active = websites.filter((site) => !site.deletedAt);
   const visible = websites.filter((site) => {
     const matchesView =
@@ -58,6 +64,44 @@ export function Atlas({
   });
   async function refresh() {
     setWebsites(await requestJson<Website[]>("/api/websites"));
+  }
+  async function refreshCategories() {
+    const next = await requestJson<Category[]>("/api/categories");
+    setCategories(next);
+    if (!next.some((item) => item.id === category)) setCategory("all");
+    setSelected([]);
+    await refresh();
+  }
+  async function batch(command: BatchCommand) {
+    setBatchBusy(true);
+    try {
+      await requestJson("/api/websites/batch", {
+        method: "POST",
+        body: JSON.stringify(command),
+      });
+      await refresh();
+      setSelected([]);
+      setNotice("批量操作已保存");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "操作失败");
+    } finally {
+      setBatchBusy(false);
+    }
+  }
+  async function move(id: string, direction: "up" | "down") {
+    setBatchBusy(true);
+    try {
+      await requestJson("/api/websites/move", {
+        method: "POST",
+        body: JSON.stringify({ id, direction }),
+      });
+      await refresh();
+      setNotice("分类内顺序已保存");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "排序失败");
+    } finally {
+      setBatchBusy(false);
+    }
   }
   async function update(site: Website, action: "trash" | "restore" | "edit") {
     try {
@@ -125,6 +169,7 @@ export function Atlas({
                 onClick={() => {
                   setView(key ?? "all");
                   setCategory("all");
+                  setSelected([]);
                 }}
               >
                 <span>{icon}</span>
@@ -171,9 +216,10 @@ export function Atlas({
               <button
                 key={item.id}
                 className={`nav-item ${category === item.id ? "selected" : ""}`}
-                onClick={() =>
-                  setCategory(category === item.id ? "all" : item.id)
-                }
+                onClick={() => {
+                  setCategory(category === item.id ? "all" : item.id);
+                  setSelected([]);
+                }}
               >
                 <span className={`category-dot dot-${index % 4}`} />
                 {item.name}
@@ -248,10 +294,17 @@ export function Atlas({
               aria-label="搜索网站"
               placeholder="搜索你收藏的网站、描述或标签…"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelected([]);
+              }}
             />
             <span className="search-hint">搜索收藏</span>
           </section>
+          <CategoryManager
+            categories={categories}
+            onChanged={refreshCategories}
+          />
           <div className="collection-heading">
             <div>
               <h2>
@@ -266,10 +319,31 @@ export function Atlas({
               <span>{visible.length} 个网站</span>
             </div>
             <div className="view-control glass">
+              <button
+                onClick={() => {
+                  setManaging(!managing);
+                  setSelected([]);
+                }}
+              >
+                {managing ? "结束管理" : "批量管理"}
+              </button>
               <span>▦</span>
               <span className="muted">卡片视图</span>
             </div>
           </div>
+          {managing && (
+            <BatchToolbar
+              ids={selected.filter((id) =>
+                visible.some((site) => site.id === id),
+              )}
+              categories={categories}
+              trash={view === "trash"}
+              busy={batchBusy}
+              onApply={batch}
+              onClear={() => setSelected([])}
+              onSelectAll={() => setSelected(visible.map((site) => site.id))}
+            />
+          )}
           {notice && (
             <div className="notice" role="status">
               {notice}
@@ -303,8 +377,45 @@ export function Atlas({
                   className="website-card glass"
                 >
                   <div className="card-top">
+                    {managing && (
+                      <input
+                        type="checkbox"
+                        aria-label={`选择${site.title}`}
+                        checked={selected.includes(site.id)}
+                        onChange={(event) =>
+                          setSelected((current) =>
+                            event.target.checked
+                              ? [...current, site.id]
+                              : current.filter((id) => id !== site.id),
+                          )
+                        }
+                      />
+                    )}
                     <span className="site-icon">{site.title.slice(0, 1)}</span>
                     <div className="card-actions">
+                      {!site.deletedAt &&
+                        category !== "all" &&
+                        !query &&
+                        view === "all" && (
+                          <>
+                            <button
+                              disabled={batchBusy || index === 0}
+                              title="分类内上移"
+                              onClick={() => void move(site.id, "up")}
+                            >
+                              ↑
+                            </button>
+                            <button
+                              disabled={
+                                batchBusy || index === visible.length - 1
+                              }
+                              title="分类内下移"
+                              onClick={() => void move(site.id, "down")}
+                            >
+                              ↓
+                            </button>
+                          </>
+                        )}
                       <button
                         title={site.pinned ? "取消置顶" : "置顶"}
                         onClick={() => void update(site, "edit")}

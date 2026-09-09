@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { SettingsConflictError } from "./settings";
+import { CatalogError } from "./catalog-management";
 export function apiError(error: unknown) {
+  if (error instanceof CatalogError) {
+    return NextResponse.json(
+      { error: { code: "CATALOG_CONFLICT", message: error.message } },
+      { status: 409 },
+    );
+  }
   if (error instanceof ZodError)
     return NextResponse.json(
       {

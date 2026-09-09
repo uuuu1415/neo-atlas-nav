@@ -52,3 +52,14 @@ Metascraper 当前依赖链不满足现有 Node，暂不接入；Cheerio 1.2.0 �
 ## C3 远程同步结果
 
 2026-09-09：`git push origin main` 成功；`git ls-remote origin refs/heads/main` 返回 8d3531901fc1eb38e9376f81e0183b7e3f4d42a2，与本地 C3 提交一致，C1/C2/C3 均已同步。后续文档提交状态仍以真实 Git 引用为准。
+
+## C4 分类管理、批量操作与按钮排序（2026-09-09）
+
+已实现：分类重命名、删除、上下排序；删除分类事务性迁移活跃及回收站网站至未分类；未分类不可删除或改名。分类面板位于主内容区，移动端可访问。
+已实现：当前结果选择、批量置顶/取消、移动分类、添加/移除标签、移入回收站、恢复、显式确认永久删除；无效 ID、无效目标、标签超限回滚整批事务。永久删除旧接口也使用同一服务限制。
+已实现：网站完整分类视图上下移动，固定 ID 次级排序处理同位置值；不能在筛选视图误改分类完整顺序。拖拽尚未实现。
+接口：PATCH /api/categories，POST /api/websites/batch，POST /api/websites/move。逻辑在 catalog-management，Zod 输入在 catalog-commands，界面独立 CategoryManager 和 BatchToolbar。
+
+验证：18 个测试通过；Lint、生产构建含 TypeScript 通过。新测试覆盖事务回滚、分类删除保留数据、永久删除限制、标签去重、同序号排序和无效目标。
+HTTP：Windows standalone server.js 在独立 work/catalog-http-c4 数据目录启动。创建记录、批量置顶、删除分类后重新读取、活跃记录永久删除返回 409、回收站后永久删除均通过。第一次 HTTP 验收脚本错误地封装了 PowerShell 返回数组，检查失败；检查实际 JSON 确認数据正确后修正验收脚本，通过。测试服务已停止。没有改动用户 data 目录。
+限制：没有浏览器 QA，不声称完整交互/无障碍验收；没有 Linux 运行测试。按钮排序不是拖拽。导入导出、全局标签管理、巡检、完整设置、shadcn/ui、动效完善、发布更新仍待完成。

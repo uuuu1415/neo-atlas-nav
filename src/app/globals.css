@@ -877,3 +877,61 @@ label input[type="color"] {
   margin-bottom: 9px;
   color: var(--muted);
 }
+.batch-toolbar,
+.category-manager {
+  padding: 14px 18px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+.batch-toolbar fieldset {
+  border: 0;
+  padding: 10px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.batch-toolbar button,
+.category-manager button {
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--surface);
+}
+.batch-toolbar select,
+.batch-toolbar input,
+.category-manager input {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 8px;
+  max-width: 100%;
+}
+.batch-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.category-manager summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.category-manager p {
+  color: var(--muted);
+}
+.category-manage-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  flex-wrap: wrap;
+}
+.category-manage-row > span {
+  flex: 1;
+  min-width: 100px;
+}
+.batch-toolbar .danger {
+  color: #b34861;
+}
