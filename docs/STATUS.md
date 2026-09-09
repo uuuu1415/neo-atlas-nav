@@ -1,82 +1,50 @@
 # 当前检查点
 
-检查点：C0 — 仓库同步与上下文持久化。
+更新时间：2026-09-09。检查点 C3：修复元数据抓取与表单覆盖，整理代码格式。
 
-更新时间：2026-09-08。
+## 目标与恢复入口
 
-## 当前目标
+唯一项目：uuuu1415/neo-atlas-nav。需求见 PROJECT_SPEC.md，阶段计划见 IMPLEMENTATION_PLAN.md，执行约束见根 AGENTS.md。恢复先检查 Git status、log、实际代码和运行中的进程，不重新初始化。
 
-按 PROJECT_SPEC 实现 Neo Atlas Nav。当前正在建立可恢复的任务记录，尚未初始化应用。不能将需求文档当作功能实现。
+## 真实实现状态
 
-## 已核实事实
+- 已有 Next.js / React 应用、SQLite 数据结构、JSON 设置存储、网站与分类基础接口及玻璃拟态首页。
+- 已有网站创建/编辑、搜索、置顶、软删除与恢复基础 UI。未完成完整浏览器验收。
+- JSON 设置已有修订号冲突检测、原子替换与备份恢复；设置全字段 UI、跨进程并发、格式迁移尚未完整验收，不能称整个阶段 1 完成。
+- 元数据：Cheerio 1.2.0 正式声明为依赖，替换属性顺序敏感的正则；支持 HTML 实体、相对图标与 base、过滤不可用图标地址。
+- 下载：流式计算最多 2,000,000 字节，超限取消；最多跟随 5 次重定向；按 JSON 设置的超时请求；非成功 HTTP 和非 HTML 返回明确错误。
+- 表单：只补空字段，显式按钮替换已有内容；展示来源、时间和图标候选说明；图标 URL 可编辑；URL 改变或关闭弹窗取消旧请求，避免旧结果污染新输入。
+- 抓取来源和时间当前只显示预览，尚未持久化；缓存与 fillEmptyOnly 设置尚未完整接入。远程图标卡片显示仍待实施。
+- 整理源码格式，Prettier 检查通过。复杂页面拆分、shadcn/ui 和拖拽尚未完成。
 
-| 项目 | 实际结果 / 证据 |
-| --- | --- |
-| 目标仓库 | uuuu1415/neo-atlas-nav |
-| 本地同步 | `gh repo clone` 返回成功；`git status --short --branch` 初始为 `main...origin/main` 且无改动。 |
-| 原始历史 | 初始提交 `d26bd197f501d99d92106d3f8a1363dbb348d623`，信息 `Initial commit`，仅 README。 |
-| 仓库公开 | 用户已授权实施开始时公开；执行 `gh repo edit ... --visibility public --accept-visibility-change-consequences` 成功，随后 `gh repo view ... --json visibility` 返回 `PUBLIC`。 |
-| 开发 shell | 当前会话已实测 PowerShell Core 7.6.5；后续命令固定使用发现的 PowerShell 7 路径。 |
-| 代码现状 | 本检查点仅文档与 MIT 许可证，没有 package.json、业务代码、安装包或部署结果。 |
-| 文档检查 | `git diff --cached --check` 通过；README 的 5 个本地文档链接均已验证存在。 |
-| 换行规则 | `.gitattributes` 固定文本 LF，Windows bat/cmd 使用 CRLF，不修改全局 Git 配置。 |
+## C3 验证证据
 
-## 阶段状态
+- npm test：3 个文件，11 个测试通过。新增覆盖属性顺序、实体、相对图标、缺字段、下载取消、403、重定向循环、非 HTML、手填字段保留。
+- npm run lint：通过。
+- npm run build：通过，包含 TypeScript 检查。
+- npm run format:check：通过。
+- git diff --check：通过。
+- 本机 next start 在 127.0.0.1:3210 响应：首页 HTTP 200，/api/health 返回 status=ok、version=0.1.0。
+- 注意：next start 提示 standalone 模式应使用独立 server.js，以上仅验证本机服务响应，不是 standalone 发布包/Linux 安装验收。检查后停止测试进程。
+- 尚未执行浏览器 QA、真实站点跨编码兼容性、1,000 条性能、Linux 部署、更新回退。
 
-| 阶段 | 状态 |
-| --- | --- |
-| 0 仓库同步与公开 | 已验证 |
-| 0 需求与恢复记录 | 已验证：需求、实施阶段、状态和 README 链接完整 |
-| 1 项目与持久化 | 待实施 |
-| 2 导航与管理 | 待实施 |
-| 3 信息获取与巡检 | 待实施 |
-| 4 视觉与动效验收 | 待实施 |
-| 5 发布安装与更新 | 待实施 |
+## 依赖和决策
 
-## 正在进行
+Node 24.13.0；Next 16.3.4、React 19.2.8、TypeScript 6.0.3、ESLint 9.39.4。旧记录中的 TypeScript 7/ESLint 10 未作为兼容方案使用。
+Metascraper 当前依赖链不满足现有 Node，暂不接入；Cheerio 1.2.0 要求 Node >=20.18.1，MIT，正式安装成功。官方 registry 此次成功。保留锁文件，不将临时 node_modules 中存在的包当作已声明依赖。
 
-应用开发尚未开始。本检查点内容已检查，保存为 Git 检查点的操作可能在中断时已完成或尚未完成。下一次恢复先查看 git status、log 和远程引用核实，不要再次克隆或再次修改可见性。
+## 下一步（按顺序）
 
-## 下一步
+1. 核对本检查点提交、工作区及远程引用。当前 origin/main 缓存落后本地；未得到新的远程验证，不能声称推送成功。
+2. 完成导航管理：类别/标签管理、批量、永久删除入口、排序、书签导入及完整备份恢复。
+3. 完成元数据缓存、来源持久化和远程图标展示，以及手动巡检任务。
+4. 完善设置、无障碍弹窗、shadcn/ui、Motion 与 dnd-kit 的职责、响应式与减少动态效果，进行浏览器与性能验证。
+5. 实现 GitHub 发布包、原生 systemd 安装和独立更新器并验收。没有服务器信息，不编造部署结果。
 
-1. 核对本检查点的 Git 保存状态；如果相关文件仍有未提交内容，先检查差异，不丢弃。
-2. 开始阶段 1：读取仓库规则与需求，核实官方依赖和兼容要求，建立应用基础。不得跳过同步历史或重新生成无关项目。
-3. 在开始安装和初始化前更新“正在进行”，写清实际选定版本及恢复时应核实的文件。
+## 历史与纠错
 
-## 尚未验证 / 需要外部信息
-
-- 所有应用功能、UI、动效、安装及更新均未实现和未测试。
-- 依赖安装版本与 peer compatibility 尚未确定。
-- 服务器具体发行版、目标主机、域名、连接信息尚未提供。
-- 本地提交和远程推送是否发生，必须以 git log/status 与远程引用验证；本文件不得凭推测宣称。
-
-## 简短历史
-
-- 2026-09-08 C0：重新核实空应用仓库，同步已有 README 历史，按明确授权公开；建立可恢复文档，暂存内容格式检查和 5 个 README 链接检查通过。
-
-## C1 开始实施
-2026-09-08：已核对远程与干净工作树。开始安装官方 registry 核实的 Next 16.3.4、React 19.2.8、TypeScript 7.0.2、Drizzle 0.45.2、better-sqlite3 13.0.3。Node 24.13.0。进行中：依赖安装；恢复先检查 package-lock.json 和安装进程，不重新初始化。
-
-## C1 实际验证补充
-
-2026-09-08：依赖安装因官方 registry 元数据解析过慢，按规则切换到 `https://registry.npmmirror.com` 后成功。固定 TypeScript 6.0.3 与 ESLint 9.39.4，原因是 TypeScript 7.0.2 和 eslint-config-next 内置 typescript-eslint、ESLint 10 与其插件链存在真实兼容错误。
-
-- `npm.cmd run typecheck`：通过。
-- `npm.cmd test -- --run`：1 个测试文件，4 个测试通过。
-- `npm.cmd run lint`：通过。
-- `npm.cmd run build`：通过，识别 `/`、`/api/categories`、`/api/health`、`/api/settings`、`/api/websites`。
-- `git diff --check`：通过。
-
-已实现未验证：网站/分类/设置接口、首页搜索/置顶/回收站基础操作、玻璃拟态响应式界面和 Motion 基础动效。待实施：Metascraper、图标获取、书签导入导出、拖拽、批量操作、巡检、浏览器验收、性能测量、Linux 安装和 GitHub 更新回退。
-
-下一步先检查当前 Git 状态并启动服务做 `/api/health` 实际请求；恢复时不要把构建通过解释为浏览器、Linux 或发布验证通过。
-
-## C2 元数据预览
-
-2026-09-08：阶段 3 的第一项已实现未验证。新增 `POST /api/metadata`，对 HTTP/HTTPS URL 进行 10 秒、2 MB 上限的 HTML 请求，提取 title、description、Open Graph 标题/描述和 icon/link 候选，返回实际重定向后的 sourceUrl；非 HTML、缺字段和失败均明确返回警告，不能阻止手动保存。网站编辑表单已接入“获取信息”预览，默认用结果覆盖本次表单草稿，不自动写入数据库。
-
-Metascraper 最新 5.56.2 及回退到 5.55.2 的依赖会解析到要求 Node `^24.15.0` 的 jsdom/re2，而当前 Node 24.13.0 不满足；安装已停止，未写入 lockfile。当前使用小范围、可审计的 HTML meta 提取器，待 Node 运行时升级并重新核对后再评估替换。
-
-验证：`npm.cmd run typecheck`、`npm.cmd test -- --run`（4 passed）、`npm.cmd run lint`、`npm.cmd run build`（新增 `/api/metadata`）、`git diff --check` 均通过。浏览器实际抓取、远程网站兼容性和图标显示仍未验证。
-
-下一步：提交并推送当前改动；继续书签导入导出、拖拽排序、批量操作和巡检。恢复时先核对 package-lock、metadata 路由和表单工作树，不重复安装不兼容 Metascraper。
+- C0：仓库同步、公开、MIT 和需求文档，495482b 已推送。
+- C1：应用基础 58c0872；C2：初始元数据 d9ae54d。上次推送失败/中止，先核对远程再继续。
+- C2 原说明“2 MB 下载上限”不准确：旧代码先下载全部再 slice，本次已改为流式上限并用测试验证。
+- C2 原说明“警告显示”和“diff check 全通过”不准确：旧 UI 未展示警告，diff 有末尾空行警告。本次已展示来源与警告并修复格式。
+- 2026-09-09 曾重复执行目录查询但未推进；后续直接使用已确定仓库路径，不重复搜索目录。

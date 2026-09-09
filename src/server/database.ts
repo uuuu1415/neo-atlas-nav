@@ -10,7 +10,10 @@ export function openDatabase(directory: string) {
   sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");
   const version = Number(sqlite.pragma("user_version", { simple: true }));
-  if (version > 1) { sqlite.close(); throw new Error("数据库版本高于当前程序支持的版本"); }
+  if (version > 1) {
+    sqlite.close();
+    throw new Error("数据库版本高于当前程序支持的版本");
+  }
   if (version === 0) {
     sqlite.transaction(() => {
       sqlite.exec(`CREATE TABLE categories (id TEXT PRIMARY KEY, name TEXT NOT NULL, position INTEGER NOT NULL DEFAULT 0);
@@ -23,6 +26,8 @@ export function openDatabase(directory: string) {
 }
 let connection: ReturnType<typeof openDatabase> | undefined;
 export function getDatabase() {
-  connection ??= openDatabase(process.env.ATLAS_DATA_DIR ?? path.join(process.cwd(), "data"));
+  connection ??= openDatabase(
+    process.env.ATLAS_DATA_DIR ?? path.join(process.cwd(), "data"),
+  );
   return connection.db;
 }

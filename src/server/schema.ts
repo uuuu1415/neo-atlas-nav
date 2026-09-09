@@ -11,7 +11,9 @@ export const websites = sqliteTable("websites", {
   url: text("url").notNull(),
   description: text("description").notNull().default(""),
   iconUrl: text("icon_url").notNull().default(""),
-  categoryId: text("category_id").notNull().references(() => categories.id),
+  categoryId: text("category_id")
+    .notNull()
+    .references(() => categories.id),
   tags: text("tags", { mode: "json" }).$type<string[]>().notNull(),
   pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   position: integer("position").notNull().default(0),

@@ -7,7 +7,10 @@ export const settingsSchema = z.object({
   description: z.string().max(240).default("把值得常来的地方，放在一起。"),
   logoUrl: z.union([z.url(), z.literal("")]).default(""),
   theme: z.enum(["system", "light", "dark"]).default("system"),
-  accent: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#6554db"),
+  accent: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default("#6554db"),
   density: z.enum(["comfortable", "compact"]).default("comfortable"),
   motion: z.enum(["rich", "simple", "off"]).default("rich"),
   showDescription: z.boolean().default(true),
@@ -25,7 +28,12 @@ export const defaultSettings = settingsSchema.parse({});
 
 export const websiteInputSchema = z.object({
   title: z.string().trim().min(1).max(160),
-  url: z.url().refine((value) => ["http:", "https:"].includes(new URL(value).protocol), "请输入 HTTP 或 HTTPS 网址"),
+  url: z
+    .url()
+    .refine(
+      (value) => ["http:", "https:"].includes(new URL(value).protocol),
+      "请输入 HTTP 或 HTTPS 网址",
+    ),
   description: z.string().max(1000).default(""),
   iconUrl: z.union([z.url(), z.literal("")]).default(""),
   categoryId: z.string().default("uncategorized"),
